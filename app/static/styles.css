@@ -1,0 +1,126 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans&family=Hedvig+Letters+Serif:opsz@12..24&family=Quicksand:wght@600&family=Roboto+Slab&family=Roboto:wght@300&display=swap');
+body{
+    background-color: black;
+}
+
+#header{ 
+    width: auto;
+   /* min-height: 100vh; */
+   /* background-image: url("pic-3.jpg"); */
+   /* background-size: cover;
+   background-position: center;
+   background-repeat: no-repeat; */
+}
+.container{
+   padding: 10px 10%;
+}
+.container img{
+    padding-left: 50px;
+}
+.header-text{
+    margin-top: 10%;
+    font-size: 30px;
+    color: white;
+}
+/*----------------- Added typing Writing effect----------------------- */
+.header-text  h1{
+    margin-top: 5%;
+    font-size:  60px;
+    width: 0ch; /*it means it will start from 0 character*/
+    overflow: hidden;
+    white-space: nowrap;
+    animation: text 3s steps(44) infinite;
+    border-right: 3px solid red;
+    font-style: italic;
+
+}
+@keyframes text {
+    0% {
+        width: 0ch;
+    }
+    50% {
+        width: 10ch;
+    }
+    
+}
+.header-text  h1 span{
+    color:red;
+}
+.header-text p{
+    font-size:20px;
+}
+footer p{
+    text-align: center;
+
+}
+h3{
+    color: white;
+}
+h2{
+    color: white;
+    text-align: center;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-size: 60px;
+}
+.container p{
+    color: white;
+}
+.col h3{
+    font-size: 30px;
+    font-weight: 400;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+.avik h3{
+    font-size: 33px;
+}
+.souvik h3{
+    font-size: 50px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+.souvik2 h3{
+    font-size: 32px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+.avik2 h3{
+    font-size: 40px;
+}
+
+
+
+/* Make the map full screen */
+#map {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+#search-container {
+    position: absolute;
+    top: 5rem;
+    left: 5rem;
+    z-index: 1000;
+}
+
+#search-container .col {
+    padding: 0 5px;
+}
+
+#search-container input[type="text"] {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#search-container button {
+    border-radius: 10px;
+}
+.leaflet-left{
+    display: none;
+}
+
+.leaflet-touch .leaflet-control-layers{
+  background-color: red;
+}
+/* .leaflet-control-layers-toggle{
+    height: 100px;
+} */
