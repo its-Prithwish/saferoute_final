@@ -94,6 +94,10 @@ h2{
     height: 100%;
 }
 
+#photo-popup img {
+    width: 100%;
+  }
+
 #search-container {
     position: absolute;
     top: 5rem;
@@ -119,8 +123,60 @@ h2{
 }
 
 .leaflet-touch .leaflet-control-layers{
-  background-color: red;
+  background-color: rgb(255, 255, 255);
 }
 /* .leaflet-control-layers-toggle{
     height: 100px;
 } */
+
+
+#search-container {
+    position: absolute;
+    top: 55px;
+    left: 70px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    z-index: 1000;
+}
+
+#coordinates-container {
+    position: absolute;
+    top: 60px;
+    left: 80px;
+    padding: 0.1px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 7px;
+    z-index: 1000;
+}
+
+#route-buttons-container {
+    position: absolute;
+    top: 20px;
+    left: 525px;
+    z-index: 1000;
+}
+
+/* Add this style for the custom marker */
+.custom-marker {
+    width: 20px;
+    height: 20px;
+}
+
+.custom-marker .circle {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 255, 0.5); /* Blue semi-transparent color */
+    border-radius: 50%;
+}
+
+
+.suggestions {
+    cursor: pointer;
+    padding: 5px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+.suggestions:hover {
+    background-color: #e9ecef;
+}
