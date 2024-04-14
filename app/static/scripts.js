@@ -9,37 +9,85 @@ document.addEventListener("DOMContentLoaded", function () {
     var sourceMarker = null;
     var destinationMarker = null;
 
+// Function to get user's current location
+const getUserLocation = async () => {
+    return new Promise((resolve, reject) => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(async position => {
+                try {
+                    const { latitude, longitude } = position.coords;
+                    const locationData = await reverseGeocode(latitude, longitude);
+                    const userCountry = locationData.address ? locationData.address.country : null;
+                    resolve(userCountry);
+                } catch (error) {
+                    reject(error);
+                }
+            }, error => {
+                reject(error);
+            });
+        } else {
+            reject(new Error('Geolocation is not supported by this browser.'));
+        }
+    });
+};
 
-    const updateSuggestions = async (input, suggestionsContainer) => {
-        const query = input.value.trim();
-        suggestionsContainer.innerHTML = ''; // Clear previous suggestions
-        
-        // Remove previous markers
-        if (sourceMarker) {
-            map.removeLayer(sourceMarker);
+// Function to reverse geocode coordinates to get location details
+const reverseGeocode = async (latitude, longitude) => {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`;
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
         }
-        if (destinationMarker) {
-            map.removeLayer(destinationMarker);
-        }
-    
-        if (query.length === 0) {
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        throw new Error('Error reverse geocoding:', error);
+    }
+};
+
+// Update suggestions function to show suggestions only from the user's country
+const updateSuggestions = async (input, suggestionsContainer) => {
+    const query = input.value.trim();
+    suggestionsContainer.innerHTML = ''; // Clear previous suggestions
+
+    // Remove previous markers
+    if (sourceMarker) {
+        map.removeLayer(sourceMarker);
+    }
+    if (destinationMarker) {
+        map.removeLayer(destinationMarker);
+    }
+
+    if (query.length === 0) {
+        return;
+    }
+
+    try {
+        // Get user's current country
+        const userCountry = await getUserLocation();
+        if (!userCountry) {
+            console.error('Unable to determine user location.');
             return;
         }
-    
-        try {
-            const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${query}&format=json`);
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            const data = await response.json();
-            data.forEach(item => {
+
+        // Fetch suggestions for the query
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${query}&format=json&addressdetails=1`);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+
+        // Filter suggestions to show only those from the user's country
+        data.forEach(item => {
+            if (item.address && item.address.country === userCountry) {
                 const suggestion = document.createElement('div');
                 suggestion.textContent = item.display_name;
                 suggestion.classList.add('suggestion');
                 suggestion.addEventListener('click', () => {
                     input.value = item.display_name;
                     suggestionsContainer.innerHTML = ''; // Clear suggestions
-                    
+
                     // Remove previous markers
                     if (sourceMarker) {
                         map.removeLayer(sourceMarker);
@@ -47,18 +95,19 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (destinationMarker) {
                         map.removeLayer(destinationMarker);
                     }
-                    
+
                     const latLng = [parseFloat(item.lat), parseFloat(item.lon)];
                     map.setView(latLng, 13);
                     sourceMarker = L.marker(latLng).addTo(map);
                 });
                 suggestionsContainer.appendChild(suggestion);
-            });
-        } catch (error) {
-            console.error('Error fetching location suggestions:', error);
-        }
-    };
-    
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching location suggestions:', error);
+    }
+};
+   
 
     sourceInput.addEventListener('input', () => updateSuggestions(sourceInput, sourceSuggestionsContainer));
     destinationInput.addEventListener('input', () => updateSuggestions(destinationInput, destinationSuggestionsContainer));
@@ -248,7 +297,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 L.latLng(destinationCoordinates[0], destinationCoordinates[1])
             ];
 
-            // Create routing control and set waypoints
             routingControl = L.Routing.control({
                 waypoints: waypoints,
                 routeWhileDragging: true,
@@ -258,10 +306,51 @@ document.addEventListener("DOMContentLoaded", function () {
                     styles: [{ color: 'blue', opacity: 0.8, weight: 5 }]
                 }
             }).addTo(map);
+    
+        // Create an array to store all coordinates
+        const coordinatesArray = [];
+    // Listen for routing events
+    routingControl.on('routesfound', (event) => {
+    // Extract the route coordinates from the event
+    const route = event.routes[0]; // Assuming there's only one route
+    const routeCoordinates = route.coordinates;
 
-            routingControl.route();
+    // Iterate through the route coordinates
+    let prevCoord = routeCoordinates[0];
+    let totalDistance = 0;
+    for (let i = 0; i < routeCoordinates.length; i++) {
+        const currentCoord = routeCoordinates[i];
+        const distance = prevCoord.distanceTo(currentCoord);
+        totalDistance += distance;
+
+        // Check if total distance exceeds 1 kilometer
+        if (totalDistance >= 1000 || i === 0 || i === routeCoordinates.length - 1) {
+            // Log the coordinates with appropriate labels
+            let label = '';
+            if (i === 0) {
+                label = 'Start';
+            } else if (i === routeCoordinates.length - 1) {
+                label = 'End';
+            } else {
+                label = `Intermediate (${Math.floor(totalDistance / 1000)} km)`;
+            }
+
+            console.log(`${label}: Latitude ${currentCoord.lat}, Longitude ${currentCoord.lng}`);
+
+            // Reset total distance
+            totalDistance = 0;
         }
+
+        prevCoord = currentCoord;
+    }
+        });
+
+        routingControl.addTo(map);
+        routingControl.route();
+    }
+    
     };
+
 
     
     const map = initializeMap();
